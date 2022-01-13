@@ -3,6 +3,6 @@
 var a = "abcdefghijklmnopqrstuvwxyz";
 var b = "xxxxyyyyabklmopq";
 
-var longest = Kata.EncryptThis("A wise old owl lived in an oak");
+var longest = Kata.ExtractFileName("1231231223123131_FILE_NAME.EXTENSION.OTHEREXTENSION");
 var check = longest;
 

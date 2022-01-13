@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -8,7 +11,7 @@ using System.Xml.Schema;
 
 namespace CodeWars.Cli;
 
-internal class Kata
+public class Kata
 {
     public static string GetMiddle(string s)
     {
@@ -109,6 +112,146 @@ internal class Kata
         }
 
         return string.Join(' ', newWords);
+    }
+    
+    public static string DecipherThis(string s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return "";
+        var oldWords = s.Split(' ');
+        var newWords = new List<string>();
+        
+        foreach(var word in oldWords)
+        {
+            var digits = word.Where(ch => ch is >= '0' and <= '9').ToArray().AsSpan();
+            var ascii = int.Parse(digits);
+            var asciiLen = ascii.ToString().Length;
+            var first = Convert.ToChar(ascii).ToString();
+            if (word.Length == asciiLen)
+            {
+                newWords.Add(first);
+                continue;
+            }
+            var second = word[^1];
+            if (word.Length == asciiLen + 1)
+            {
+                newWords.Add($"{first}{second}");
+                continue;
+            }
+            newWords.Add($"{first}{second}{word[(asciiLen + 1)..^1]}{word[asciiLen]}");
+        }      
+        return string.Join(' ', newWords);
+    }    
+    
+    public static int[] ArrayDiff(int[] a, int[] b)
+    {
+        return a.Where(n => !b.Contains(n)).ToArray();
+    }
+    
+    public static int[,] MultiplicationTable(int size)
+    {
+        var ret = new int[size, size];
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                ret[x, y] = (x + 1) * (y + 1);
+            }
+        }
+
+        return ret;
+    }
+    
+    public static string Stat(string strg)
+    {
+        if (string.IsNullOrEmpty(strg)) return "";
+        
+        var rawTimes = strg.Split(',');
+        var timesInSeconds = new List<int>();
+        foreach (var t in rawTimes)
+        {
+            var tSplit = t.Trim().Split('|');
+            int.TryParse(tSplit[0], out int hours);
+            int.TryParse(tSplit[1], out int mins);
+            int.TryParse(tSplit[2], out int secs);
+            timesInSeconds.Add(hours * 60 * 60 + mins * 60 + secs);
+        }
+
+        var range = timesInSeconds.Max() - timesInSeconds.Min();
+        var mean = (int)Math.Floor(timesInSeconds.Average());
+        int halfIndex = timesInSeconds.Count / 2;
+        var sortedNumbers = timesInSeconds.OrderBy(n=>n).ToList();
+        int median;
+        if ((timesInSeconds.Count % 2) == 0)
+        {
+            median = (int)Math.Floor((sortedNumbers.ElementAt(halfIndex) + sortedNumbers.ElementAt(halfIndex - 1)) / 2d);
+        } else {
+            median = sortedNumbers.ElementAt(halfIndex);
+        }
+
+        var tsMedian = new TimeSpan(0, 0, median);
+        var tsMean = new TimeSpan(0, 0, mean);
+        var tsRange = new TimeSpan(0, 0, range);
+
+        return $"Range: {tsRange:hh\\|mm\\|ss} Average: {tsMean:hh\\|mm\\|ss} Median: {tsMedian:hh\\|mm\\|ss}";
+    }	
+    
+    public static string BinaryToString(string binary)
+    {
+        if (string.IsNullOrWhiteSpace(binary)) return "";
+        var text = new StringBuilder();
+
+        for (int i = 0; i < binary.Length; i += 8)
+        {
+            text.Append(Convert.ToChar(Convert.ToInt32(binary[i..(i + 8)], 2)));
+        }
+      
+        return text.ToString();
+    }   
+    
+    public static int[] UpArray(int[] num)
+    {
+        if (num.Any(n => n > 9) || num.Any(n => n < 0)) return null;
+        var numStr = new string(num.Select(n => n.ToString()[0]).ToArray());
+        var big = (BigInteger.Parse(numStr) + 1).ToString().PadLeft(num.Length).Replace(" ", "0");
+        return big.Select(ch => int.Parse(ch.ToString())).ToArray();
+
+        return num;
+    }
+    
+    public static int[] DataReverse(int[] data)
+    {
+        IEnumerable<List<T>> SplitList<T>(List<T> locations, int nSize=30)  
+        {        
+            for (int i = 0; i < locations.Count; i += nSize) 
+            { 
+                yield return locations.GetRange(i, Math.Min(nSize, locations.Count - i)); 
+            }  
+        }
+        return SplitList(data.ToList(), 8).Reverse().SelectMany(b => b).ToArray();
+    }    
+    
+    public static int GetLongestPalindrome(string str)
+    {
+        bool IsPalindrome(string maybe)
+        {
+            return maybe.Reverse().SequenceEqual(maybe);
+        }
+
+        var largest = 0;
+        for (int i = 0; i < str.Length; i++)
+        {
+            for (int j = i; j < str.Length; j++)
+            {
+                if (IsPalindrome(str.Substring(i, j - i + 1)) && j - i + 1 > largest) largest = j - i + 1;
+            }
+        }
+        return largest;
+    }    
+    
+    public static string ExtractFileName(string dirtFileName)
+    {
+        var rx = new Regex(@"^(\d+)_(.*)\.");
+        return rx.Match(dirtFileName).Groups[2].Value;
     }
 }
 
