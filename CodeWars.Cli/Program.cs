@@ -1,8 +1,6 @@
 ﻿using CodeWars.Cli;
+using CodeWars.Cli.LinkedLists;
 
-var a = "abcdefghijklmnopqrstuvwxyz";
-var b = "xxxxyyyyabklmopq";
-
-var longest = Kata.ExtractFileName("1231231223123131_FILE_NAME.EXTENSION.OTHEREXTENSION");
-var check = longest;
+var ch = Kata.ConvertToRoman(1666);
+var check = ch;
 
